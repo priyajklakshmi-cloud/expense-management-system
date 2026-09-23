@@ -1,0 +1,2081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Add Income | Expense Manager</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cream: #fffaf3;
+            --cream-dark: #f6eee2;
+            --orange: #e87532;
+            --orange-dark: #c85d20;
+            --orange-light: #fff0e5;
+            --brown: #34251f;
+            --text: #443832;
+            --muted: #8b7c74;
+            --white: #ffffff;
+            --green: #39966b;
+            --green-light: #eaf8f1;
+            --red: #d95757;
+            --border: #eee3d7;
+            --shadow: 0 15px 40px rgba(80, 48, 25, 0.08);
+            --sidebar-width: 255px;
+        }
+
+        body {
+            font-family: "DM Sans", sans-serif;
+            background: var(--cream);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 28px 18px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 0 10px;
+            margin-bottom: 38px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--orange);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            box-shadow: 0 7px 18px rgba(232, 117, 50, 0.25);
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--brown);
+        }
+
+        .logo-text span {
+            color: var(--orange);
+        }
+
+        .nav-title {
+            font-size: 10px;
+            color: #aaa09a;
+            text-transform: uppercase;
+            letter-spacing: 1.3px;
+            font-weight: 700;
+            padding: 0 12px;
+            margin-bottom: 10px;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px 13px;
+            border-radius: 12px;
+            color: #796c65;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.25s ease;
+        }
+
+        .nav-link .icon {
+            width: 22px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .nav-link:hover {
+            background: var(--orange-light);
+            color: var(--orange);
+            transform: translateX(3px);
+        }
+
+        .nav-link.active {
+            background: var(--orange);
+            color: white;
+            box-shadow: 0 7px 18px rgba(232, 117, 50, 0.20);
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+
+        .logout-btn {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: #8b7c74;
+            padding: 12px 13px;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.25s;
+        }
+
+        .logout-btn:hover {
+            background: #fff0f0;
+            color: var(--red);
+        }
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            padding: 28px 38px 50px;
+        }
+
+        /* ================= TOPBAR ================= */
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .menu-btn {
+            display: none;
+            border: none;
+            background: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .page-heading h1 {
+            font-family: "Playfair Display", serif;
+            font-size: 30px;
+            color: var(--brown);
+            margin-bottom: 5px;
+        }
+
+        .page-heading h1 span {
+            color: var(--orange);
+        }
+
+        .page-heading p {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .user-mini {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            background: white;
+            padding: 6px 12px 6px 6px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+        }
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--orange-light);
+            color: var(--orange);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .user-mini span {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* ================= PAGE GRID ================= */
+
+        .page-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* ================= FORM CARD ================= */
+
+        .form-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .form-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-bottom: 23px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-header-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: var(--green-light);
+            color: var(--green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 23px;
+        }
+
+        .form-header h2 {
+            font-size: 18px;
+            color: var(--brown);
+            margin-bottom: 4px;
+        }
+
+        .form-header p {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 17px;
+        }
+
+        .form-group {
+            margin-bottom: 19px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--brown);
+            margin-bottom: 8px;
+        }
+
+        .required {
+            color: var(--orange);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 15px;
+            pointer-events: none;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid var(--border);
+            background: #fffdfa;
+            color: var(--brown);
+            border-radius: 11px;
+            outline: none;
+            font-size: 12px;
+            transition: 0.25s ease;
+        }
+
+        input,
+        select {
+            height: 46px;
+            padding: 0 13px;
+        }
+
+        textarea {
+            min-height: 105px;
+            padding: 13px;
+            resize: vertical;
+        }
+
+        .with-icon {
+            padding-left: 39px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--orange);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(232, 117, 50, 0.09);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #b5aaa3;
+        }
+
+        .amount-wrapper {
+            position: relative;
+        }
+
+        .currency {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--green);
+        }
+
+        .amount-input {
+            padding-left: 35px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .hint {
+            display: block;
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 9px;
+        }
+
+        /* ================= CATEGORY CHIPS ================= */
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 9px;
+        }
+
+        .category-option {
+            position: relative;
+        }
+
+        .category-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .category-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            height: 68px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #fffdfa;
+            cursor: pointer;
+            transition: 0.25s ease;
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .category-label .category-emoji {
+            font-size: 19px;
+        }
+
+        .category-label:hover {
+            border-color: var(--orange);
+            background: var(--orange-light);
+            color: var(--orange);
+            transform: translateY(-2px);
+        }
+
+        .category-option input:checked + .category-label {
+            border-color: var(--orange);
+            background: var(--orange-light);
+            color: var(--orange);
+            box-shadow: 0 5px 15px rgba(232, 117, 50, 0.10);
+        }
+
+        /* ================= BUTTONS ================= */
+
+        .form-actions {
+            display: flex;
+            gap: 11px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            height: 47px;
+            border-radius: 11px;
+            padding: 0 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            transition: 0.25s ease;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: var(--green);
+            color: white;
+            box-shadow: 0 7px 18px rgba(57, 150, 107, 0.20);
+        }
+
+        .btn-primary:hover {
+            background: #2d815a;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--cream-dark);
+            color: var(--brown);
+            min-width: 105px;
+        }
+
+        .btn-secondary:hover {
+            background: #ebdfd1;
+        }
+
+        /* ================= SIDE CARDS ================= */
+
+        .side-column {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .preview-card {
+            background: var(--brown);
+            color: white;
+            border-radius: 22px;
+            padding: 25px;
+            overflow: hidden;
+            position: relative;
+            animation: fadeUp 0.6s ease both;
+        }
+
+        .preview-card::after {
+            content: "";
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border: 25px solid rgba(255,255,255,0.04);
+            border-radius: 50%;
+            right: -55px;
+            top: -50px;
+        }
+
+        .preview-label {
+            font-size: 10px;
+            color: #c8bdb6;
+            margin-bottom: 10px;
+        }
+
+        .preview-amount {
+            font-size: 31px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .preview-text {
+            color: #b9aaa2;
+            font-size: 10px;
+        }
+
+        .preview-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.10);
+            margin: 21px 0;
+        }
+
+        .preview-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            margin-bottom: 12px;
+        }
+
+        .preview-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .preview-row span:first-child {
+            color: #b9aaa2;
+        }
+
+        .preview-row span:last-child {
+            font-weight: 700;
+        }
+
+        .green-text {
+            color: #70d5a4;
+        }
+
+        .orange-text {
+            color: #f4a36f;
+        }
+
+        .info-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 22px;
+        }
+
+        .info-card h3 {
+            font-size: 13px;
+            color: var(--brown);
+            margin-bottom: 14px;
+        }
+
+        .info-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 13px;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-number {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 8px;
+            background: var(--orange-light);
+            color: var(--orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .info-item p {
+            font-size: 10px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .recent-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 22px;
+        }
+
+        .recent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .recent-header h3 {
+            font-size: 13px;
+        }
+
+        .recent-header a {
+            font-size: 10px;
+            color: var(--orange);
+            font-weight: 700;
+        }
+
+        .recent-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f3ece5;
+        }
+
+        .recent-item:last-child {
+            border-bottom: none;
+        }
+
+        .recent-icon {
+            width: 31px;
+            height: 31px;
+            border-radius: 9px;
+            background: var(--green-light);
+            color: var(--green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+
+        .recent-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .recent-info strong {
+            display: block;
+            font-size: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .recent-info span {
+            display: block;
+            color: var(--muted);
+            font-size: 8px;
+            margin-top: 2px;
+        }
+
+        .recent-amount {
+            color: var(--green);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .recent-empty {
+            text-align: center;
+            color: var(--muted);
+            font-size: 10px;
+            padding: 15px 0 5px;
+        }
+
+        /* ================= TOAST ================= */
+
+        .toast {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            min-width: 250px;
+            max-width: 350px;
+            padding: 14px 18px;
+            background: var(--brown);
+            color: white;
+            border-radius: 12px;
+            font-size: 11px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.16);
+            transform: translateY(100px);
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s ease;
+            z-index: 5000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--green);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--red);
+        }
+
+        /* ================= OVERLAY ================= */
+
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(30, 20, 15, 0.35);
+            z-index: 900;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 1050px) {
+
+            .page-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .side-column {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                align-items: start;
+            }
+
+            .recent-card {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 900px) {
+
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: 10px 0 30px rgba(0,0,0,0.08);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 22px 20px 40px;
+            }
+
+            .menu-btn {
+                display: block;
+            }
+
+            .topbar {
+                gap: 12px;
+            }
+
+            .user-mini {
+                display: none;
+            }
+
+            .topbar {
+                justify-content: flex-start;
+            }
+
+            .page-heading {
+                margin-left: 4px;
+            }
+        }
+
+        @media (max-width: 650px) {
+
+            .main {
+                padding: 18px 14px 35px;
+            }
+
+            .page-heading h1 {
+                font-size: 24px;
+            }
+
+            .page-heading p {
+                font-size: 11px;
+            }
+
+            .form-card {
+                padding: 20px;
+                border-radius: 18px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+
+            .category-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .side-column {
+                display: flex;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .btn-secondary {
+                width: 100%;
+            }
+
+            .btn-primary {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">₹</div>
+            <div class="logo-text">
+                Expense <span>Manager</span>
+            </div>
+        </div>
+
+        <div class="nav-title">Main Menu</div>
+
+        <nav class="nav">
+
+            <a href="dashboard.html" class="nav-link">
+                <span class="icon">⌂</span>
+                Dashboard
+            </a>
+
+            <a href="transactions.html" class="nav-link">
+                <span class="icon">↔</span>
+                Transactions
+            </a>
+
+            <a href="income.html" class="nav-link active">
+                <span class="icon">↗</span>
+                Add Income
+            </a>
+
+            <a href="expenses.html" class="nav-link">
+                <span class="icon">↘</span>
+                Add Expense
+            </a>
+
+            <a href="budget.html" class="nav-link">
+                <span class="icon">◫</span>
+                Budget
+            </a>
+
+            <a href="analytics.html" class="nav-link">
+                <span class="icon">◒</span>
+                Analytics
+            </a>
+
+            <a href="goals.html" class="nav-link">
+                <span class="icon">☆</span>
+                Savings Goals
+            </a>
+
+            <a href="calendar.html" class="nav-link">
+                <span class="icon">□</span>
+                Calendar
+            </a>
+
+            <a href="split-expense.html" class="nav-link">
+                <span class="icon">⇄</span>
+                Split Expense
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button class="logout-btn" id="logoutBtn">
+                <span>↪</span>
+                Logout
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <div class="overlay" id="overlay"></div>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <button class="menu-btn" id="menuBtn">
+                ☰
+            </button>
+
+            <div class="page-heading">
+
+                <h1>
+                    Add <span>Income</span>
+                </h1>
+
+                <p>
+                    Record money you've received and keep your finances updated.
+                </p>
+
+            </div>
+
+            <div class="user-mini">
+
+                <div class="avatar" id="avatar">
+                    U
+                </div>
+
+                <span id="userName">
+                    User
+                </span>
+
+            </div>
+
+        </header>
+
+
+        <!-- ================= PAGE ================= -->
+
+        <section class="page-grid">
+
+            <!-- ================= FORM ================= -->
+
+            <div class="form-card">
+
+                <div class="form-header">
+
+                    <div class="form-header-icon">
+                        ↗
+                    </div>
+
+                    <div>
+                        <h2>Income Details</h2>
+                        <p>Add a new income transaction to your account.</p>
+                    </div>
+
+                </div>
+
+
+                <form id="incomeForm">
+
+                    <!-- AMOUNT -->
+
+                    <div class="form-group">
+
+                        <label for="amount">
+                            Amount <span class="required">*</span>
+                        </label>
+
+                        <div class="amount-wrapper">
+
+                            <span class="currency">
+                                ₹
+                            </span>
+
+                            <input
+                                type="number"
+                                id="amount"
+                                class="amount-input"
+                                placeholder="0.00"
+                                min="1"
+                                step="0.01"
+                                required
+                            >
+
+                        </div>
+
+                        <span class="hint">
+                            Enter the exact amount you received.
+                        </span>
+
+                    </div>
+
+
+                    <!-- CATEGORY -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Income Category <span class="required">*</span>
+                        </label>
+
+                        <div class="category-grid">
+
+                            <div class="category-option">
+
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    id="salary"
+                                    value="Salary"
+                                    checked
+                                >
+
+                                <label
+                                    class="category-label"
+                                    for="salary">
+
+                                    <span class="category-emoji">
+                                        💼
+                                    </span>
+
+                                    Salary
+
+                                </label>
+
+                            </div>
+
+
+                            <div class="category-option">
+
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    id="freelance"
+                                    value="Freelance"
+                                >
+
+                                <label
+                                    class="category-label"
+                                    for="freelance">
+
+                                    <span class="category-emoji">
+                                        💻
+                                    </span>
+
+                                    Freelance
+
+                                </label>
+
+                            </div>
+
+
+                            <div class="category-option">
+
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    id="business"
+                                    value="Business"
+                                >
+
+                                <label
+                                    class="category-label"
+                                    for="business">
+
+                                    <span class="category-emoji">
+                                        🏪
+                                    </span>
+
+                                    Business
+
+                                </label>
+
+                            </div>
+
+
+                            <div class="category-option">
+
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    id="gift"
+                                    value="Gift"
+                                >
+
+                                <label
+                                    class="category-label"
+                                    for="gift">
+
+                                    <span class="category-emoji">
+                                        🎁
+                                    </span>
+
+                                    Gift
+
+                                </label>
+
+                            </div>
+
+
+                            <div class="category-option">
+
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    id="bonus"
+                                    value="Bonus"
+                                >
+
+                                <label
+                                    class="category-label"
+                                    for="bonus">
+
+                                    <span class="category-emoji">
+                                        ⭐
+                                    </span>
+
+                                    Bonus
+
+                                </label>
+
+                            </div>
+
+
+                            <div class="category-option">
+
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    id="investment"
+                                    value="Investment"
+                                >
+
+                                <label
+                                    class="category-label"
+                                    for="investment">
+
+                                    <span class="category-emoji">
+                                        📈
+                                    </span>
+
+                                    Investment
+
+                                </label>
+
+                            </div>
+
+
+                            <div class="category-option">
+
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    id="refund"
+                                    value="Refund"
+                                >
+
+                                <label
+                                    class="category-label"
+                                    for="refund">
+
+                                    <span class="category-emoji">
+                                        ↩
+                                    </span>
+
+                                    Refund
+
+                                </label>
+
+                            </div>
+
+
+                            <div class="category-option">
+
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    id="other"
+                                    value="Other"
+                                >
+
+                                <label
+                                    class="category-label"
+                                    for="other">
+
+                                    <span class="category-emoji">
+                                        +
+                                    </span>
+
+                                    Other
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DATE + SOURCE -->
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="date">
+                                Date <span class="required">*</span>
+                            </label>
+
+                            <div class="input-wrapper">
+
+                                <span class="input-icon">
+                                    □
+                                </span>
+
+                                <input
+                                    type="date"
+                                    id="date"
+                                    class="with-icon"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="source">
+                                Income Source
+                            </label>
+
+                            <div class="input-wrapper">
+
+                                <span class="input-icon">
+                                    ◉
+                                </span>
+
+                                <input
+                                    type="text"
+                                    id="source"
+                                    class="with-icon"
+                                    placeholder="e.g. Company, Client..."
+                                    maxlength="60"
+                                >
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DESCRIPTION -->
+
+                    <div class="form-group">
+
+                        <label for="description">
+                            Description
+                        </label>
+
+                        <textarea
+                            id="description"
+                            placeholder="Add a note about this income..."
+                            maxlength="200"
+                        ></textarea>
+
+                        <span class="hint">
+                            Optional. Maximum 200 characters.
+                        </span>
+
+                    </div>
+
+
+                    <!-- BUTTONS -->
+
+                    <div class="form-actions">
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            id="clearBtn">
+                            Clear
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary">
+                            + Add Income
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- ================= SIDE ================= -->
+
+            <div class="side-column">
+
+                <!-- PREVIEW -->
+
+                <div class="preview-card">
+
+                    <div class="preview-label">
+                        CURRENT FINANCIAL SNAPSHOT
+                    </div>
+
+                    <div
+                        class="preview-amount"
+                        id="previewBalance">
+                        ₹0
+                    </div>
+
+                    <div class="preview-text">
+                        Available balance
+                    </div>
+
+                    <div class="preview-divider"></div>
+
+                    <div class="preview-row">
+                        <span>Total income</span>
+                        <span
+                            class="green-text"
+                            id="previewIncome">
+                            ₹0
+                        </span>
+                    </div>
+
+                    <div class="preview-row">
+                        <span>Total expenses</span>
+                        <span
+                            class="orange-text"
+                            id="previewExpense">
+                            ₹0
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <!-- TIPS -->
+
+                <div class="info-card">
+
+                    <h3>
+                        Smart Income Tips
+                    </h3>
+
+                    <div class="info-item">
+
+                        <div class="info-number">
+                            01
+                        </div>
+
+                        <p>
+                            Record every income source so your balance stays accurate.
+                        </p>
+
+                    </div>
+
+
+                    <div class="info-item">
+
+                        <div class="info-number">
+                            02
+                        </div>
+
+                        <p>
+                            Use meaningful categories to make future analytics more useful.
+                        </p>
+
+                    </div>
+
+
+                    <div class="info-item">
+
+                        <div class="info-number">
+                            03
+                        </div>
+
+                        <p>
+                            Add the actual date instead of today's date when recording older income.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- RECENT INCOME -->
+
+                <div class="recent-card">
+
+                    <div class="recent-header">
+
+                        <h3>
+                            Recent Income
+                        </h3>
+
+                        <a href="transactions.html">
+                            View All →
+                        </a>
+
+                    </div>
+
+                    <div id="recentIncome">
+                        <!-- JS -->
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================= TOAST ================= -->
+
+    <div class="toast" id="toast"></div>
+
+
+    <script>
+
+        /* =====================================================
+           STORAGE
+        ===================================================== */
+
+        function getStorage(key, fallback) {
+
+            try {
+
+                const data =
+                    localStorage.getItem(key);
+
+                return data
+                    ? JSON.parse(data)
+                    : fallback;
+
+            } catch (error) {
+
+                console.error(error);
+
+                return fallback;
+
+            }
+
+        }
+
+
+        function saveStorage(key, data) {
+
+            localStorage.setItem(
+                key,
+                JSON.stringify(data)
+            );
+
+        }
+
+
+        /* =====================================================
+           LOGIN CHECK
+        ===================================================== */
+
+        const currentUser =
+            getStorage("currentUser", null);
+
+
+        if (!currentUser) {
+
+            window.location.href =
+                "login.html";
+
+        }
+
+
+        /* =====================================================
+           USER
+        ===================================================== */
+
+        function loadUser() {
+
+            if (!currentUser) return;
+
+            const name =
+                currentUser.name ||
+                currentUser.fullName ||
+                currentUser.username ||
+                "User";
+
+            document.getElementById("userName")
+                .textContent = name;
+
+            document.getElementById("avatar")
+                .textContent =
+                name.charAt(0).toUpperCase();
+
+        }
+
+
+        /* =====================================================
+           TODAY DATE
+        ===================================================== */
+
+        function setToday() {
+
+            const today =
+                new Date();
+
+            const year =
+                today.getFullYear();
+
+            const month =
+                String(today.getMonth() + 1)
+                    .padStart(2, "0");
+
+            const day =
+                String(today.getDate())
+                    .padStart(2, "0");
+
+            document.getElementById("date")
+                .value =
+                `${year}-${month}-${day}`;
+
+        }
+
+
+        /* =====================================================
+           MONEY
+        ===================================================== */
+
+        function money(value) {
+
+            return "₹" +
+                Number(value || 0)
+                    .toLocaleString("en-IN", {
+                        maximumFractionDigits: 2
+                    });
+
+        }
+
+
+        /* =====================================================
+           CURRENT FINANCIAL SNAPSHOT
+        ===================================================== */
+
+        function updatePreview() {
+
+            const income =
+                getStorage("income", []);
+
+            const expenses =
+                getStorage("expenses", []);
+
+            const incomeArray =
+                Array.isArray(income)
+                    ? income
+                    : [];
+
+            const expenseArray =
+                Array.isArray(expenses)
+                    ? expenses
+                    : [];
+
+
+            const totalIncome =
+                incomeArray.reduce(
+                    (sum, item) =>
+                        sum +
+                        Number(item.amount || 0),
+                    0
+                );
+
+
+            const totalExpense =
+                expenseArray.reduce(
+                    (sum, item) =>
+                        sum +
+                        Number(item.amount || 0),
+                    0
+                );
+
+
+            const balance =
+                totalIncome -
+                totalExpense;
+
+
+            document.getElementById("previewIncome")
+                .textContent =
+                money(totalIncome);
+
+
+            document.getElementById("previewExpense")
+                .textContent =
+                money(totalExpense);
+
+
+            document.getElementById("previewBalance")
+                .textContent =
+                money(balance);
+
+        }
+
+
+        /* =====================================================
+           RECENT INCOME
+        ===================================================== */
+
+        function loadRecentIncome() {
+
+            const container =
+                document.getElementById("recentIncome");
+
+            const income =
+                getStorage("income", []);
+
+            const incomeArray =
+                Array.isArray(income)
+                    ? income
+                    : [];
+
+
+            const sorted =
+                [...incomeArray]
+                    .sort((a, b) => {
+
+                        return new Date(
+                            b.date || b.createdAt
+                        ) -
+                        new Date(
+                            a.date || a.createdAt
+                        );
+
+                    })
+                    .slice(0, 4);
+
+
+            if (!sorted.length) {
+
+                container.innerHTML = `
+                    <div class="recent-empty">
+                        No income recorded yet.
+                    </div>
+                `;
+
+                return;
+
+            }
+
+
+            container.innerHTML = "";
+
+
+            sorted.forEach(item => {
+
+                const row =
+                    document.createElement("div");
+
+                row.className =
+                    "recent-item";
+
+
+                const category =
+                    item.category ||
+                    "Income";
+
+
+                const description =
+                    item.description ||
+                    item.source ||
+                    category;
+
+
+                row.innerHTML = `
+
+                    <div class="recent-icon">
+                        ↗
+                    </div>
+
+                    <div class="recent-info">
+
+                        <strong>
+                            ${escapeHTML(description)}
+                        </strong>
+
+                        <span>
+                            ${escapeHTML(category)}
+                        </span>
+
+                    </div>
+
+                    <div class="recent-amount">
+                        +${money(item.amount)}
+                    </div>
+
+                `;
+
+
+                container.appendChild(row);
+
+            });
+
+        }
+
+
+        /* =====================================================
+           FORM
+        ===================================================== */
+
+        const form =
+            document.getElementById("incomeForm");
+
+
+        form.addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+
+            const amount =
+                Number(
+                    document.getElementById("amount").value
+                );
+
+
+            const categoryElement =
+                document.querySelector(
+                    'input[name="category"]:checked'
+                );
+
+
+            const category =
+                categoryElement
+                    ? categoryElement.value
+                    : "Other";
+
+
+            const date =
+                document.getElementById("date").value;
+
+
+            const source =
+                document.getElementById("source")
+                    .value
+                    .trim();
+
+
+            const description =
+                document.getElementById("description")
+                    .value
+                    .trim();
+
+
+            /* VALIDATION */
+
+            if (!amount || amount <= 0) {
+
+                showToast(
+                    "Please enter a valid income amount.",
+                    "error"
+                );
+
+                document.getElementById("amount")
+                    .focus();
+
+                return;
+
+            }
+
+
+            if (!date) {
+
+                showToast(
+                    "Please select an income date.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            /* GET EXISTING DATA */
+
+            const income =
+                getStorage("income", []);
+
+            const incomeArray =
+                Array.isArray(income)
+                    ? income
+                    : [];
+
+
+            /* CREATE TRANSACTION */
+
+            const newIncome = {
+
+                id:
+                    "income_" +
+                    Date.now() +
+                    "_" +
+                    Math.random()
+                        .toString(36)
+                        .substring(2, 8),
+
+                amount: amount,
+
+                category: category,
+
+                date: date,
+
+                source: source,
+
+                description: description,
+
+                createdAt:
+                    new Date().toISOString(),
+
+                userId:
+                    currentUser?.id ||
+                    currentUser?.email ||
+                    null
+
+            };
+
+
+            /* SAVE */
+
+            incomeArray.push(newIncome);
+
+            saveStorage(
+                "income",
+                incomeArray
+            );
+
+
+            /* UPDATE UI */
+
+            updatePreview();
+
+            loadRecentIncome();
+
+
+            /* RESET */
+
+            form.reset();
+
+            setToday();
+
+            document.getElementById("salary")
+                .checked = true;
+
+
+            /* SUCCESS */
+
+            showToast(
+                "Income added successfully! Your dashboard is updated.",
+                "success"
+            );
+
+
+            /* GO DASHBOARD */
+
+            setTimeout(() => {
+
+                window.location.href =
+                    "dashboard.html";
+
+            }, 900);
+
+        });
+
+
+        /* =====================================================
+           CLEAR
+        ===================================================== */
+
+        document.getElementById("clearBtn")
+            .addEventListener("click", () => {
+
+                form.reset();
+
+                setToday();
+
+                document.getElementById("salary")
+                    .checked = true;
+
+                showToast(
+                    "Form cleared.",
+                    "success"
+                );
+
+            });
+
+
+        /* =====================================================
+           HTML SAFETY
+        ===================================================== */
+
+        function escapeHTML(value) {
+
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+
+        }
+
+
+        /* =====================================================
+           TOAST
+        ===================================================== */
+
+        function showToast(message, type = "") {
+
+            const toast =
+                document.getElementById("toast");
+
+            toast.textContent =
+                message;
+
+            toast.className =
+                "toast show " + type;
+
+
+            setTimeout(() => {
+
+                toast.classList.remove("show");
+
+            }, 2800);
+
+        }
+
+
+        /* =====================================================
+           MOBILE MENU
+        ===================================================== */
+
+        const menuBtn =
+            document.getElementById("menuBtn");
+
+        const sidebar =
+            document.getElementById("sidebar");
+
+        const overlay =
+            document.getElementById("overlay");
+
+
+        menuBtn.addEventListener("click", () => {
+
+            sidebar.classList.toggle("open");
+
+            overlay.classList.toggle("show");
+
+        });
+
+
+        overlay.addEventListener("click", () => {
+
+            sidebar.classList.remove("open");
+
+            overlay.classList.remove("show");
+
+        });
+
+
+        document.querySelectorAll(".nav-link")
+            .forEach(link => {
+
+                link.addEventListener("click", () => {
+
+                    sidebar.classList.remove("open");
+
+                    overlay.classList.remove("show");
+
+                });
+
+            });
+
+
+        /* =====================================================
+           LOGOUT
+        ===================================================== */
+
+        document.getElementById("logoutBtn")
+            .addEventListener("click", () => {
+
+                if (
+                    confirm(
+                        "Are you sure you want to logout?"
+                    )
+                ) {
+
+                    localStorage.removeItem(
+                        "currentUser"
+                    );
+
+                    window.location.href =
+                        "login.html";
+
+                }
+
+            });
+
+
+        /* =====================================================
+           INITIAL LOAD
+        ===================================================== */
+
+        loadUser();
+
+        setToday();
+
+        updatePreview();
+
+        loadRecentIncome();
+
+    </script>
+
+</body>
+</html>

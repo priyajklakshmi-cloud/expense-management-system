@@ -1,0 +1,2306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Expense | Expense Manager</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cream: #fffaf3;
+            --cream-dark: #f6eee2;
+            --orange: #e87532;
+            --orange-dark: #c85d20;
+            --orange-light: #fff0e5;
+            --brown: #34251f;
+            --text: #443832;
+            --muted: #8b7c74;
+            --white: #ffffff;
+            --green: #39966b;
+            --green-light: #eaf8f1;
+            --red: #d95757;
+            --red-light: #fff0f0;
+            --purple: #7860c8;
+            --purple-light: #f1edff;
+            --border: #eee3d7;
+            --shadow: 0 15px 40px rgba(80, 48, 25, 0.08);
+            --sidebar-width: 255px;
+        }
+
+        body {
+            font-family: "DM Sans", sans-serif;
+            background: var(--cream);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 28px 18px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 0 10px;
+            margin-bottom: 38px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--orange);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            box-shadow: 0 7px 18px rgba(232, 117, 50, 0.25);
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--brown);
+        }
+
+        .logo-text span {
+            color: var(--orange);
+        }
+
+        .nav-title {
+            font-size: 10px;
+            color: #aaa09a;
+            text-transform: uppercase;
+            letter-spacing: 1.3px;
+            font-weight: 700;
+            padding: 0 12px;
+            margin-bottom: 10px;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px 13px;
+            border-radius: 12px;
+            color: #796c65;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.25s ease;
+        }
+
+        .nav-link .icon {
+            width: 22px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .nav-link:hover {
+            background: var(--orange-light);
+            color: var(--orange);
+            transform: translateX(3px);
+        }
+
+        .nav-link.active {
+            background: var(--orange);
+            color: white;
+            box-shadow: 0 7px 18px rgba(232, 117, 50, 0.20);
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+
+        .logout-btn {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: #8b7c74;
+            padding: 12px 13px;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.25s;
+        }
+
+        .logout-btn:hover {
+            background: var(--red-light);
+            color: var(--red);
+        }
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            padding: 28px 38px 50px;
+        }
+
+        /* ================= TOPBAR ================= */
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .menu-btn {
+            display: none;
+            border: none;
+            background: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .page-heading h1 {
+            font-family: "Playfair Display", serif;
+            font-size: 30px;
+            color: var(--brown);
+            margin-bottom: 5px;
+        }
+
+        .page-heading h1 span {
+            color: var(--red);
+        }
+
+        .page-heading p {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .user-mini {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            background: white;
+            padding: 6px 12px 6px 6px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+        }
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--orange-light);
+            color: var(--orange);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .user-mini span {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* ================= GRID ================= */
+
+        .page-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* ================= FORM CARD ================= */
+
+        .form-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .form-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-bottom: 23px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-header-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: var(--red-light);
+            color: var(--red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 23px;
+        }
+
+        .form-header h2 {
+            font-size: 18px;
+            color: var(--brown);
+            margin-bottom: 4px;
+        }
+
+        .form-header p {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 17px;
+        }
+
+        .form-group {
+            margin-bottom: 19px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--brown);
+            margin-bottom: 8px;
+        }
+
+        .required {
+            color: var(--red);
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid var(--border);
+            background: #fffdfa;
+            color: var(--brown);
+            border-radius: 11px;
+            outline: none;
+            font-size: 12px;
+            transition: 0.25s ease;
+        }
+
+        input,
+        select {
+            height: 46px;
+            padding: 0 13px;
+        }
+
+        textarea {
+            min-height: 105px;
+            padding: 13px;
+            resize: vertical;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--orange);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(232, 117, 50, 0.09);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #b5aaa3;
+        }
+
+        /* ================= AMOUNT ================= */
+
+        .amount-wrapper {
+            position: relative;
+        }
+
+        .currency {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .amount-input {
+            padding-left: 35px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .hint {
+            display: block;
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 9px;
+        }
+
+        /* ================= NEED / WANT ================= */
+
+        .spending-type {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .type-option {
+            position: relative;
+        }
+
+        .type-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .type-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 67px;
+            padding: 10px 13px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: 0.25s ease;
+            background: #fffdfa;
+        }
+
+        .type-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 17px;
+        }
+
+        .need-icon {
+            background: var(--green-light);
+            color: var(--green);
+        }
+
+        .want-icon {
+            background: var(--purple-light);
+            color: var(--purple);
+        }
+
+        .type-label strong {
+            display: block;
+            font-size: 11px;
+            color: var(--brown);
+            margin-bottom: 3px;
+        }
+
+        .type-label small {
+            display: block;
+            color: var(--muted);
+            font-size: 8px;
+        }
+
+        .type-option input:checked + .type-label {
+            border-color: var(--orange);
+            background: var(--orange-light);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(232, 117, 50, 0.10);
+        }
+
+        /* ================= CATEGORY ================= */
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 9px;
+        }
+
+        .category-option {
+            position: relative;
+        }
+
+        .category-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .category-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            height: 68px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #fffdfa;
+            cursor: pointer;
+            transition: 0.25s ease;
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .category-emoji {
+            font-size: 19px;
+        }
+
+        .category-label:hover {
+            border-color: var(--orange);
+            background: var(--orange-light);
+            color: var(--orange);
+            transform: translateY(-2px);
+        }
+
+        .category-option input:checked + .category-label {
+            border-color: var(--orange);
+            background: var(--orange-light);
+            color: var(--orange);
+            box-shadow: 0 5px 15px rgba(232, 117, 50, 0.10);
+        }
+
+        /* ================= BUTTONS ================= */
+
+        .form-actions {
+            display: flex;
+            gap: 11px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            height: 47px;
+            border-radius: 11px;
+            padding: 0 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            transition: 0.25s ease;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: var(--red);
+            color: white;
+            box-shadow: 0 7px 18px rgba(217, 87, 87, 0.20);
+        }
+
+        .btn-primary:hover {
+            background: #c74747;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--cream-dark);
+            color: var(--brown);
+            min-width: 105px;
+        }
+
+        .btn-secondary:hover {
+            background: #ebdfd1;
+        }
+
+        /* ================= SIDE ================= */
+
+        .side-column {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .preview-card {
+            background: var(--brown);
+            color: white;
+            border-radius: 22px;
+            padding: 25px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .preview-card::after {
+            content: "";
+            position: absolute;
+            width: 160px;
+            height: 160px;
+            border: 26px solid rgba(255,255,255,0.04);
+            border-radius: 50%;
+            right: -60px;
+            top: -55px;
+        }
+
+        .preview-label {
+            font-size: 10px;
+            color: #c8bdb6;
+            margin-bottom: 10px;
+        }
+
+        .preview-amount {
+            font-size: 31px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .preview-text {
+            color: #b9aaa2;
+            font-size: 10px;
+        }
+
+        .preview-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.10);
+            margin: 21px 0;
+        }
+
+        .preview-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            margin-bottom: 12px;
+        }
+
+        .preview-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .preview-row span:first-child {
+            color: #b9aaa2;
+        }
+
+        .preview-row span:last-child {
+            font-weight: 700;
+        }
+
+        .income-color {
+            color: #70d5a4;
+        }
+
+        .expense-color {
+            color: #ff8e8e;
+        }
+
+        /* ================= SPENDING ANALYSIS ================= */
+
+        .analysis-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 22px;
+        }
+
+        .analysis-card h3 {
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .analysis-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 13px;
+        }
+
+        .analysis-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .analysis-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .need-analysis {
+            background: var(--green-light);
+            color: var(--green);
+        }
+
+        .want-analysis {
+            background: var(--purple-light);
+            color: var(--purple);
+        }
+
+        .analysis-info {
+            flex: 1;
+        }
+
+        .analysis-info div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .analysis-info strong {
+            font-size: 10px;
+        }
+
+        .analysis-info span {
+            font-size: 9px;
+            color: var(--muted);
+        }
+
+        .analysis-track {
+            height: 6px;
+            background: #f3eee8;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .analysis-fill {
+            height: 100%;
+            border-radius: inherit;
+            transition: width 0.7s ease;
+        }
+
+        .need-fill {
+            background: var(--green);
+        }
+
+        .want-fill {
+            background: var(--purple);
+        }
+
+        /* ================= TIPS ================= */
+
+        .tips-card {
+            background: #fff7ed;
+            border-radius: 20px;
+            padding: 22px;
+        }
+
+        .tips-card h3 {
+            font-size: 13px;
+            margin-bottom: 14px;
+            color: var(--brown);
+        }
+
+        .tip {
+            display: flex;
+            gap: 9px;
+            margin-bottom: 11px;
+        }
+
+        .tip:last-child {
+            margin-bottom: 0;
+        }
+
+        .tip-icon {
+            color: var(--orange);
+            font-size: 12px;
+        }
+
+        .tip p {
+            font-size: 9px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        /* ================= TOAST ================= */
+
+        .toast {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            min-width: 250px;
+            max-width: 370px;
+            padding: 14px 18px;
+            background: var(--brown);
+            color: white;
+            border-radius: 12px;
+            font-size: 11px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.16);
+            transform: translateY(100px);
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s ease;
+            z-index: 5000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--green);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--red);
+        }
+
+        /* ================= OVERLAY ================= */
+
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(30, 20, 15, 0.35);
+            z-index: 900;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        /* ================= ANIMATION ================= */
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 1050px) {
+            .page-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .side-column {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                align-items: start;
+            }
+
+            .preview-card {
+                grid-row: span 2;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: 10px 0 30px rgba(0,0,0,0.08);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 22px 20px 40px;
+            }
+
+            .menu-btn {
+                display: block;
+            }
+
+            .topbar {
+                justify-content: flex-start;
+                gap: 13px;
+            }
+
+            .user-mini {
+                display: none;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .main {
+                padding: 18px 14px 35px;
+            }
+
+            .page-heading h1 {
+                font-size: 24px;
+            }
+
+            .page-heading p {
+                font-size: 11px;
+            }
+
+            .form-card {
+                padding: 20px;
+                border-radius: 18px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .spending-type {
+                grid-template-columns: 1fr;
+            }
+
+            .category-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .side-column {
+                display: flex;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .btn-secondary,
+            .btn-primary {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">₹</div>
+
+            <div class="logo-text">
+                Expense <span>Manager</span>
+            </div>
+        </div>
+
+        <div class="nav-title">
+            Main Menu
+        </div>
+
+        <nav class="nav">
+
+            <a href="dashboard.html" class="nav-link">
+                <span class="icon">⌂</span>
+                Dashboard
+            </a>
+
+            <a href="transactions.html" class="nav-link">
+                <span class="icon">↔</span>
+                Transactions
+            </a>
+
+            <a href="income.html" class="nav-link">
+                <span class="icon">↗</span>
+                Add Income
+            </a>
+
+            <a href="expenses.html" class="nav-link active">
+                <span class="icon">↘</span>
+                Add Expense
+            </a>
+
+            <a href="budget.html" class="nav-link">
+                <span class="icon">◫</span>
+                Budget
+            </a>
+
+            <a href="analytics.html" class="nav-link">
+                <span class="icon">◒</span>
+                Analytics
+            </a>
+
+            <a href="goals.html" class="nav-link">
+                <span class="icon">☆</span>
+                Savings Goals
+            </a>
+
+            <a href="calendar.html" class="nav-link">
+                <span class="icon">□</span>
+                Calendar
+            </a>
+
+            <a href="split-expense.html" class="nav-link">
+                <span class="icon">⇄</span>
+                Split Expense
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button class="logout-btn" id="logoutBtn">
+                <span>↪</span>
+                Logout
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <div class="overlay" id="overlay"></div>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <button class="menu-btn" id="menuBtn">
+                ☰
+            </button>
+
+            <div class="page-heading">
+
+                <h1>
+                    Add <span>Expense</span>
+                </h1>
+
+                <p>
+                    Track where your money goes and understand your spending habits.
+                </p>
+
+            </div>
+
+            <div class="user-mini">
+
+                <div class="avatar" id="avatar">
+                    U
+                </div>
+
+                <span id="userName">
+                    User
+                </span>
+
+            </div>
+
+        </header>
+
+
+        <!-- ================= PAGE GRID ================= -->
+
+        <section class="page-grid">
+
+            <!-- ================= FORM ================= -->
+
+            <div class="form-card">
+
+                <div class="form-header">
+
+                    <div class="form-header-icon">
+                        ↘
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Expense Details
+                        </h2>
+
+                        <p>
+                            Record a new expense and keep your spending history accurate.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <form id="expenseForm">
+
+                    <!-- AMOUNT -->
+
+                    <div class="form-group">
+
+                        <label for="amount">
+                            Amount <span class="required">*</span>
+                        </label>
+
+                        <div class="amount-wrapper">
+
+                            <span class="currency">
+                                ₹
+                            </span>
+
+                            <input
+                                type="number"
+                                id="amount"
+                                class="amount-input"
+                                placeholder="0.00"
+                                min="1"
+                                step="0.01"
+                                required
+                            >
+
+                        </div>
+
+                        <span class="hint">
+                            Enter the amount you spent.
+                        </span>
+
+                    </div>
+
+
+                    <!-- NEED / WANT -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Spending Type <span class="required">*</span>
+                        </label>
+
+                        <div class="spending-type">
+
+                            <div class="type-option">
+
+                                <input
+                                    type="radio"
+                                    name="spendingType"
+                                    id="need"
+                                    value="Need"
+                                    checked
+                                >
+
+                                <label
+                                    class="type-label"
+                                    for="need">
+
+                                    <div class="type-icon need-icon">
+                                        ✓
+                                    </div>
+
+                                    <div>
+                                        <strong>Need</strong>
+                                        <small>Essential spending</small>
+                                    </div>
+
+                                </label>
+
+                            </div>
+
+
+                            <div class="type-option">
+
+                                <input
+                                    type="radio"
+                                    name="spendingType"
+                                    id="want"
+                                    value="Want"
+                                >
+
+                                <label
+                                    class="type-label"
+                                    for="want">
+
+                                    <div class="type-icon want-icon">
+                                        ★
+                                    </div>
+
+                                    <div>
+                                        <strong>Want</strong>
+                                        <small>Non-essential spending</small>
+                                    </div>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CATEGORY -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Expense Category <span class="required">*</span>
+                        </label>
+
+                        <div class="category-grid">
+
+                            <div class="category-option">
+
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    id="food"
+                                    value="Food"
+                                    checked
+                                >
+
+                                <label
+                                    class="category-label"
+                                    for="food">
+
+                                    <span class="category-emoji">
+                                        🍴
+                                    </span>
+
+                                    Food
+
+                                </label>
+
+                            </div>
+
+
+                            <div class="category-option">
+
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    id="transport"
+                                    value="Transport"
+                                >
+
+                                <label
+                                    class="category-label"
+                                    for="transport">
+
+                                    <span class="category-emoji">
+                                        🚗
+                                    </span>
+
+                                    Transport
+
+                                </label>
+
+                            </div>
+
+
+                            <div class="category-option">
+
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    id="shopping"
+                                    value="Shopping"
+                                >
+
+                                <label
+                                    class="category-label"
+                                    for="shopping">
+
+                                    <span class="category-emoji">
+                                        🛍
+                                    </span>
+
+                                    Shopping
+
+                                </label>
+
+                            </div>
+
+
+                            <div class="category-option">
+
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    id="bills"
+                                    value="Bills"
+                                >
+
+                                <label
+                                    class="category-label"
+                                    for="bills">
+
+                                    <span class="category-emoji">
+                                        💡
+                                    </span>
+
+                                    Bills
+
+                                </label>
+
+                            </div>
+
+
+                            <div class="category-option">
+
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    id="health"
+                                    value="Health"
+                                >
+
+                                <label
+                                    class="category-label"
+                                    for="health">
+
+                                    <span class="category-emoji">
+                                        ❤
+                                    </span>
+
+                                    Health
+
+                                </label>
+
+                            </div>
+
+
+                            <div class="category-option">
+
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    id="education"
+                                    value="Education"
+                                >
+
+                                <label
+                                    class="category-label"
+                                    for="education">
+
+                                    <span class="category-emoji">
+                                        📚
+                                    </span>
+
+                                    Education
+
+                                </label>
+
+                            </div>
+
+
+                            <div class="category-option">
+
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    id="entertainment"
+                                    value="Entertainment"
+                                >
+
+                                <label
+                                    class="category-label"
+                                    for="entertainment">
+
+                                    <span class="category-emoji">
+                                        🎬
+                                    </span>
+
+                                    Entertainment
+
+                                </label>
+
+                            </div>
+
+
+                            <div class="category-option">
+
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    id="other"
+                                    value="Other"
+                                >
+
+                                <label
+                                    class="category-label"
+                                    for="other">
+
+                                    <span class="category-emoji">
+                                        +
+                                    </span>
+
+                                    Other
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DATE + PAYMENT -->
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="date">
+                                Date <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="date"
+                                id="date"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="payment">
+                                Payment Method
+                            </label>
+
+                            <select id="payment">
+
+                                <option value="UPI">
+                                    UPI
+                                </option>
+
+                                <option value="Cash">
+                                    Cash
+                                </option>
+
+                                <option value="Debit Card">
+                                    Debit Card
+                                </option>
+
+                                <option value="Credit Card">
+                                    Credit Card
+                                </option>
+
+                                <option value="Bank Transfer">
+                                    Bank Transfer
+                                </option>
+
+                                <option value="Other">
+                                    Other
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- MERCHANT -->
+
+                    <div class="form-group">
+
+                        <label for="merchant">
+                            Merchant / Place
+                        </label>
+
+                        <input
+                            type="text"
+                            id="merchant"
+                            placeholder="e.g. Amazon, Restaurant, College..."
+                            maxlength="70"
+                        >
+
+                    </div>
+
+
+                    <!-- DESCRIPTION -->
+
+                    <div class="form-group">
+
+                        <label for="description">
+                            Description
+                        </label>
+
+                        <textarea
+                            id="description"
+                            placeholder="What was this expense for?"
+                            maxlength="200"
+                        ></textarea>
+
+                        <span class="hint">
+                            Optional. Maximum 200 characters.
+                        </span>
+
+                    </div>
+
+
+                    <!-- RECURRING -->
+
+                    <div class="form-group">
+
+                        <label for="recurring">
+                            Recurring Expense
+                        </label>
+
+                        <select id="recurring">
+
+                            <option value="No">
+                                No — One-time expense
+                            </option>
+
+                            <option value="Daily">
+                                Daily
+                            </option>
+
+                            <option value="Weekly">
+                                Weekly
+                            </option>
+
+                            <option value="Monthly">
+                                Monthly
+                            </option>
+
+                            <option value="Yearly">
+                                Yearly
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- BUTTONS -->
+
+                    <div class="form-actions">
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            id="clearBtn">
+                            Clear
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary">
+                            + Add Expense
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- ================= RIGHT COLUMN ================= -->
+
+            <div class="side-column">
+
+                <!-- FINANCIAL PREVIEW -->
+
+                <div class="preview-card">
+
+                    <div class="preview-label">
+                        CURRENT FINANCIAL SNAPSHOT
+                    </div>
+
+                    <div
+                        class="preview-amount"
+                        id="previewBalance">
+                        ₹0
+                    </div>
+
+                    <div class="preview-text">
+                        Available balance
+                    </div>
+
+                    <div class="preview-divider"></div>
+
+                    <div class="preview-row">
+
+                        <span>
+                            Total income
+                        </span>
+
+                        <span
+                            class="income-color"
+                            id="previewIncome">
+                            ₹0
+                        </span>
+
+                    </div>
+
+                    <div class="preview-row">
+
+                        <span>
+                            Total expenses
+                        </span>
+
+                        <span
+                            class="expense-color"
+                            id="previewExpense">
+                            ₹0
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- NEED / WANT ANALYSIS -->
+
+                <div class="analysis-card">
+
+                    <h3>
+                        Spending Pattern
+                    </h3>
+
+                    <div class="analysis-item">
+
+                        <div class="analysis-icon need-analysis">
+                            ✓
+                        </div>
+
+                        <div class="analysis-info">
+
+                            <div>
+                                <strong>
+                                    Needs
+                                </strong>
+
+                                <span id="needAmount">
+                                    ₹0
+                                </span>
+                            </div>
+
+                            <div class="analysis-track">
+
+                                <div
+                                    class="analysis-fill need-fill"
+                                    id="needProgress"
+                                    style="width:0%">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="analysis-item">
+
+                        <div class="analysis-icon want-analysis">
+                            ★
+                        </div>
+
+                        <div class="analysis-info">
+
+                            <div>
+                                <strong>
+                                    Wants
+                                </strong>
+
+                                <span id="wantAmount">
+                                    ₹0
+                                </span>
+                            </div>
+
+                            <div class="analysis-track">
+
+                                <div
+                                    class="analysis-fill want-fill"
+                                    id="wantProgress"
+                                    style="width:0%">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TIPS -->
+
+                <div class="tips-card">
+
+                    <h3>
+                        Smart Spending Tips
+                    </h3>
+
+                    <div class="tip">
+
+                        <span class="tip-icon">
+                            ◆
+                        </span>
+
+                        <p>
+                            Marking expenses as Need or Want helps identify unnecessary spending.
+                        </p>
+
+                    </div>
+
+                    <div class="tip">
+
+                        <span class="tip-icon">
+                            ◆
+                        </span>
+
+                        <p>
+                            Keep small expenses recorded too — they can add up significantly.
+                        </p>
+
+                    </div>
+
+                    <div class="tip">
+
+                        <span class="tip-icon">
+                            ◆
+                        </span>
+
+                        <p>
+                            Use categories consistently to get more accurate analytics.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- TOAST -->
+
+    <div
+        class="toast"
+        id="toast">
+    </div>
+
+
+    <script>
+
+        /* =====================================================
+           STORAGE HELPERS
+        ===================================================== */
+
+        function getStorage(key, fallback) {
+
+            try {
+
+                const data =
+                    localStorage.getItem(key);
+
+                return data
+                    ? JSON.parse(data)
+                    : fallback;
+
+            } catch (error) {
+
+                console.error(error);
+
+                return fallback;
+
+            }
+
+        }
+
+
+        function saveStorage(key, data) {
+
+            localStorage.setItem(
+                key,
+                JSON.stringify(data)
+            );
+
+        }
+
+
+        /* =====================================================
+           LOGIN CHECK
+        ===================================================== */
+
+        const currentUser =
+            getStorage("currentUser", null);
+
+
+        if (!currentUser) {
+
+            window.location.href =
+                "login.html";
+
+        }
+
+
+        /* =====================================================
+           USER
+        ===================================================== */
+
+        function loadUser() {
+
+            if (!currentUser) return;
+
+            const name =
+                currentUser.name ||
+                currentUser.fullName ||
+                currentUser.username ||
+                "User";
+
+            document.getElementById("userName")
+                .textContent = name;
+
+            document.getElementById("avatar")
+                .textContent =
+                name.charAt(0).toUpperCase();
+
+        }
+
+
+        /* =====================================================
+           TODAY DATE
+        ===================================================== */
+
+        function setToday() {
+
+            const today =
+                new Date();
+
+            const year =
+                today.getFullYear();
+
+            const month =
+                String(today.getMonth() + 1)
+                    .padStart(2, "0");
+
+            const day =
+                String(today.getDate())
+                    .padStart(2, "0");
+
+            document.getElementById("date")
+                .value =
+                `${year}-${month}-${day}`;
+
+        }
+
+
+        /* =====================================================
+           MONEY
+        ===================================================== */
+
+        function money(value) {
+
+            return "₹" +
+                Number(value || 0)
+                    .toLocaleString("en-IN", {
+                        maximumFractionDigits: 2
+                    });
+
+        }
+
+
+        /* =====================================================
+           FINANCIAL PREVIEW
+        ===================================================== */
+
+        function updatePreview() {
+
+            const income =
+                getStorage("income", []);
+
+            const expenses =
+                getStorage("expenses", []);
+
+
+            const incomeArray =
+                Array.isArray(income)
+                    ? income
+                    : [];
+
+
+            const expenseArray =
+                Array.isArray(expenses)
+                    ? expenses
+                    : [];
+
+
+            const totalIncome =
+                incomeArray.reduce(
+                    (sum, item) =>
+                        sum +
+                        Number(item.amount || 0),
+                    0
+                );
+
+
+            const totalExpense =
+                expenseArray.reduce(
+                    (sum, item) =>
+                        sum +
+                        Number(item.amount || 0),
+                    0
+                );
+
+
+            const balance =
+                totalIncome -
+                totalExpense;
+
+
+            document.getElementById("previewIncome")
+                .textContent =
+                money(totalIncome);
+
+
+            document.getElementById("previewExpense")
+                .textContent =
+                money(totalExpense);
+
+
+            document.getElementById("previewBalance")
+                .textContent =
+                money(balance);
+
+
+            /* NEED / WANT */
+
+            const needs =
+                expenseArray
+                    .filter(item =>
+                        item.spendingType === "Need"
+                    )
+                    .reduce(
+                        (sum, item) =>
+                            sum +
+                            Number(item.amount || 0),
+                        0
+                    );
+
+
+            const wants =
+                expenseArray
+                    .filter(item =>
+                        item.spendingType === "Want"
+                    )
+                    .reduce(
+                        (sum, item) =>
+                            sum +
+                            Number(item.amount || 0),
+                        0
+                    );
+
+
+            const total =
+                needs + wants;
+
+
+            const needPercentage =
+                total > 0
+                    ? (needs / total) * 100
+                    : 0;
+
+
+            const wantPercentage =
+                total > 0
+                    ? (wants / total) * 100
+                    : 0;
+
+
+            document.getElementById("needAmount")
+                .textContent =
+                money(needs);
+
+
+            document.getElementById("wantAmount")
+                .textContent =
+                money(wants);
+
+
+            document.getElementById("needProgress")
+                .style.width =
+                needPercentage + "%";
+
+
+            document.getElementById("wantProgress")
+                .style.width =
+                wantPercentage + "%";
+
+        }
+
+
+        /* =====================================================
+           FORM SUBMIT
+        ===================================================== */
+
+        const form =
+            document.getElementById("expenseForm");
+
+
+        form.addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+
+            const amount =
+                Number(
+                    document.getElementById("amount")
+                        .value
+                );
+
+
+            const spendingType =
+                document.querySelector(
+                    'input[name="spendingType"]:checked'
+                )?.value || "Need";
+
+
+            const category =
+                document.querySelector(
+                    'input[name="category"]:checked'
+                )?.value || "Other";
+
+
+            const date =
+                document.getElementById("date")
+                    .value;
+
+
+            const payment =
+                document.getElementById("payment")
+                    .value;
+
+
+            const merchant =
+                document.getElementById("merchant")
+                    .value
+                    .trim();
+
+
+            const description =
+                document.getElementById("description")
+                    .value
+                    .trim();
+
+
+            const recurring =
+                document.getElementById("recurring")
+                    .value;
+
+
+            /* VALIDATION */
+
+            if (!amount || amount <= 0) {
+
+                showToast(
+                    "Please enter a valid expense amount.",
+                    "error"
+                );
+
+                document.getElementById("amount")
+                    .focus();
+
+                return;
+
+            }
+
+
+            if (!date) {
+
+                showToast(
+                    "Please select the expense date.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            /* EXISTING EXPENSES */
+
+            const expenses =
+                getStorage("expenses", []);
+
+
+            const expenseArray =
+                Array.isArray(expenses)
+                    ? expenses
+                    : [];
+
+
+            /* CREATE OBJECT */
+
+            const newExpense = {
+
+                id:
+                    "expense_" +
+                    Date.now() +
+                    "_" +
+                    Math.random()
+                        .toString(36)
+                        .substring(2, 8),
+
+                amount: amount,
+
+                spendingType: spendingType,
+
+                category: category,
+
+                date: date,
+
+                paymentMethod: payment,
+
+                merchant: merchant,
+
+                description: description,
+
+                recurring: recurring,
+
+                createdAt:
+                    new Date().toISOString(),
+
+                userId:
+                    currentUser?.id ||
+                    currentUser?.email ||
+                    null
+
+            };
+
+
+            /* SAVE */
+
+            expenseArray.push(newExpense);
+
+            saveStorage(
+                "expenses",
+                expenseArray
+            );
+
+
+            /* SUCCESS */
+
+            showToast(
+                "Expense added successfully! Dashboard is updating...",
+                "success"
+            );
+
+
+            /* UPDATE PREVIEW */
+
+            updatePreview();
+
+
+            /* RESET */
+
+            form.reset();
+
+            setToday();
+
+            document.getElementById("need")
+                .checked = true;
+
+            document.getElementById("food")
+                .checked = true;
+
+
+            /* GO DASHBOARD */
+
+            setTimeout(() => {
+
+                window.location.href =
+                    "dashboard.html";
+
+            }, 900);
+
+        });
+
+
+        /* =====================================================
+           CLEAR FORM
+        ===================================================== */
+
+        document.getElementById("clearBtn")
+            .addEventListener("click", () => {
+
+                form.reset();
+
+                setToday();
+
+                document.getElementById("need")
+                    .checked = true;
+
+                document.getElementById("food")
+                    .checked = true;
+
+                showToast(
+                    "Form cleared.",
+                    "success"
+                );
+
+            });
+
+
+        /* =====================================================
+           TOAST
+        ===================================================== */
+
+        function showToast(message, type = "") {
+
+            const toast =
+                document.getElementById("toast");
+
+            toast.textContent =
+                message;
+
+            toast.className =
+                "toast show " + type;
+
+
+            setTimeout(() => {
+
+                toast.classList.remove("show");
+
+            }, 2800);
+
+        }
+
+
+        /* =====================================================
+           HTML SAFETY
+        ===================================================== */
+
+        function escapeHTML(value) {
+
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+
+        }
+
+
+        /* =====================================================
+           MOBILE MENU
+        ===================================================== */
+
+        const menuBtn =
+            document.getElementById("menuBtn");
+
+        const sidebar =
+            document.getElementById("sidebar");
+
+        const overlay =
+            document.getElementById("overlay");
+
+
+        menuBtn.addEventListener("click", () => {
+
+            sidebar.classList.toggle("open");
+
+            overlay.classList.toggle("show");
+
+        });
+
+
+        overlay.addEventListener("click", () => {
+
+            sidebar.classList.remove("open");
+
+            overlay.classList.remove("show");
+
+        });
+
+
+        document.querySelectorAll(".nav-link")
+            .forEach(link => {
+
+                link.addEventListener("click", () => {
+
+                    sidebar.classList.remove("open");
+
+                    overlay.classList.remove("show");
+
+                });
+
+            });
+
+
+        /* =====================================================
+           LOGOUT
+        ===================================================== */
+
+        document.getElementById("logoutBtn")
+            .addEventListener("click", () => {
+
+                const confirmLogout =
+                    confirm(
+                        "Are you sure you want to logout?"
+                    );
+
+                if (!confirmLogout) return;
+
+                localStorage.removeItem(
+                    "currentUser"
+                );
+
+                window.location.href =
+                    "login.html";
+
+            });
+
+
+        /* =====================================================
+           INITIALIZE
+        ===================================================== */
+
+        loadUser();
+
+        setToday();
+
+        updatePreview();
+
+    </script>
+
+</body>
+</html>

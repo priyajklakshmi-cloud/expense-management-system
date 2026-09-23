@@ -1,0 +1,3287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Split Expense | Expense Manager</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #f8f4ed;
+            --card: #ffffff;
+            --text: #29251f;
+            --muted: #8b8479;
+            --border: #ebe4d9;
+
+            --orange: #e87532;
+            --orange-dark: #c85b1d;
+            --orange-light: #fff0e5;
+
+            --green: #3d8b68;
+            --green-light: #e9f6ef;
+
+            --red: #d95d5d;
+            --red-light: #fff0f0;
+
+            --purple: #7765a8;
+            --purple-light: #f0ecfa;
+
+            --shadow: 0 15px 40px rgba(70, 50, 30, 0.07);
+
+            --sidebar: 250px;
+        }
+
+        body {
+            font-family: "DM Sans", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            width: var(--sidebar);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+
+            background: #fffdf9;
+            border-right: 1px solid var(--border);
+
+            padding: 25px 16px;
+
+            z-index: 1000;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+
+            padding: 0 10px;
+            margin-bottom: 35px;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+
+            border-radius: 13px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ef8a45,
+                    #d85f1d
+                );
+
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 20px;
+
+            box-shadow:
+                0 8px 18px
+                rgba(232,117,50,0.22);
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.4px;
+        }
+
+        .nav-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+
+            color: #aaa197;
+
+            padding: 0 12px;
+            margin-bottom: 10px;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+
+            padding: 12px 13px;
+
+            border-radius: 12px;
+
+            color: #756e65;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            transition: 0.25s ease;
+        }
+
+        .nav-link:hover {
+            background: #f8f1e8;
+            color: var(--orange-dark);
+
+            transform: translateX(2px);
+        }
+
+        .nav-link.active {
+            background: var(--orange-light);
+            color: var(--orange-dark);
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+
+        .user-mini {
+            background: #f8f2e9;
+
+            border-radius: 15px;
+
+            padding: 12px;
+
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            margin-bottom: 10px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+
+            border-radius: 50%;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ef8a45,
+                    #d45d20
+                );
+
+            color: white;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .user-info {
+            min-width: 0;
+        }
+
+        .user-info strong {
+            display: block;
+
+            font-size: 12px;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-info span {
+            display: block;
+
+            font-size: 10px;
+
+            color: var(--muted);
+
+            margin-top: 2px;
+        }
+
+        .logout-btn {
+            width: 100%;
+
+            border: none;
+            background: transparent;
+
+            color: #8a8278;
+
+            padding: 10px;
+
+            border-radius: 10px;
+
+            font-size: 12px;
+            font-weight: 600;
+
+            text-align: left;
+
+            transition: 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #fff0ef;
+            color: var(--red);
+        }
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: var(--sidebar);
+
+            min-height: 100vh;
+
+            padding: 32px 38px 50px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 27px;
+        }
+
+        .heading-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .page-heading h1 {
+            font-family: "Playfair Display", serif;
+
+            font-size: 32px;
+
+            letter-spacing: -0.8px;
+        }
+
+        .page-heading p {
+            margin-top: 5px;
+
+            color: var(--muted);
+
+            font-size: 13px;
+        }
+
+        .menu-btn {
+            display: none;
+
+            width: 42px;
+            height: 42px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 12px;
+
+            background: white;
+
+            font-size: 20px;
+        }
+
+        /* ================= LAYOUT ================= */
+
+        .page-grid {
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1.45fr)
+                minmax(300px, 0.75fr);
+
+            gap: 22px;
+
+            align-items: start;
+        }
+
+        .card {
+            background: white;
+
+            border: 1px solid var(--border);
+
+            border-radius: 20px;
+
+            box-shadow: var(--shadow);
+        }
+
+        .card-header {
+            padding: 21px 22px;
+
+            border-bottom:
+                1px solid var(--border);
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 10px;
+        }
+
+        .card-header h2 {
+            font-size: 16px;
+        }
+
+        .card-header p {
+            color: var(--muted);
+
+            font-size: 11px;
+
+            margin-top: 3px;
+        }
+
+        .card-body {
+            padding: 22px;
+        }
+
+        /* ================= FORM ================= */
+
+        .form-grid {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 15px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .field label {
+            display: block;
+
+            color: #635c53;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            margin-bottom: 7px;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+
+            height: 45px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 11px;
+
+            background: #fffdfa;
+
+            color: var(--text);
+
+            padding: 0 12px;
+
+            outline: none;
+
+            font-size: 12px;
+
+            transition: 0.2s;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: #e7a174;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(232,117,50,0.08);
+        }
+
+        /* ================= SPLIT MODE ================= */
+
+        .split-mode {
+            margin-top: 22px;
+
+            background: #faf7f2;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 15px;
+
+            padding: 15px;
+        }
+
+        .mode-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 11px;
+        }
+
+        .mode-heading strong {
+            font-size: 12px;
+        }
+
+        .mode-heading span {
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        .mode-buttons {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 8px;
+        }
+
+        .mode-btn {
+            border:
+                1px solid var(--border);
+
+            background: white;
+
+            padding: 11px;
+
+            border-radius: 10px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            color: #777066;
+
+            transition: 0.2s;
+        }
+
+        .mode-btn.active {
+            background: var(--orange-light);
+
+            border-color: #f0bf9d;
+
+            color: var(--orange-dark);
+        }
+
+        /* ================= PEOPLE ================= */
+
+        .people-section {
+            margin-top: 22px;
+        }
+
+        .people-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 11px;
+        }
+
+        .people-heading h3 {
+            font-size: 13px;
+        }
+
+        .people-heading span {
+            color: var(--muted);
+
+            font-size: 10px;
+        }
+
+        .person-row {
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1fr)
+                120px
+                38px;
+
+            gap: 8px;
+
+            margin-bottom: 8px;
+
+            animation: rowIn 0.25s ease;
+        }
+
+        .person-row input {
+            width: 100%;
+
+            height: 40px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 10px;
+
+            padding: 0 11px;
+
+            outline: none;
+
+            font-size: 11px;
+
+            background: #fffdfa;
+        }
+
+        .person-row input:focus {
+            border-color: #e5a078;
+        }
+
+        .person-amount {
+            display: none;
+        }
+
+        .custom-mode .person-amount {
+            display: block;
+        }
+
+        .remove-person {
+            width: 38px;
+            height: 40px;
+
+            border:
+                1px solid #f0d0d0;
+
+            border-radius: 10px;
+
+            background: var(--red-light);
+
+            color: var(--red);
+
+            font-size: 15px;
+        }
+
+        .add-person-btn {
+            width: 100%;
+
+            border:
+                1px dashed #e4c9b7;
+
+            background: #fffaf6;
+
+            color: var(--orange-dark);
+
+            border-radius: 11px;
+
+            height: 40px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            margin-top: 3px;
+
+            transition: 0.2s;
+        }
+
+        .add-person-btn:hover {
+            background: var(--orange-light);
+        }
+
+        /* ================= ACTIONS ================= */
+
+        .form-actions {
+            display: flex;
+            gap: 9px;
+
+            margin-top: 23px;
+        }
+
+        .primary-btn {
+            border: none;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--orange),
+                    #d85f1d
+                );
+
+            color: white;
+
+            padding: 12px 18px;
+
+            border-radius: 11px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            box-shadow:
+                0 8px 18px
+                rgba(232,117,50,0.2);
+
+            transition: 0.25s;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 12px 25px
+                rgba(232,117,50,0.28);
+        }
+
+        .secondary-btn {
+            border:
+                1px solid var(--border);
+
+            background: white;
+
+            color: #756d63;
+
+            padding: 11px 17px;
+
+            border-radius: 11px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+        }
+
+        /* ================= RESULT ================= */
+
+        .result-card {
+            overflow: hidden;
+        }
+
+        .result-hero {
+            background:
+                linear-gradient(
+                    135deg,
+                    #3c3026,
+                    #292018
+                );
+
+            color: white;
+
+            padding: 23px;
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+        .result-hero::after {
+            content: "";
+
+            position: absolute;
+
+            width: 160px;
+            height: 160px;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.08);
+
+            border-radius: 50%;
+
+            right: -65px;
+            top: -65px;
+        }
+
+        .result-label {
+            color: #e8bda0;
+
+            font-size: 9px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1.3px;
+
+            font-weight: 700;
+        }
+
+        .result-total {
+            font-family:
+                "Playfair Display",
+                serif;
+
+            font-size: 30px;
+
+            margin-top: 7px;
+        }
+
+        .result-sub {
+            color: #c9baad;
+
+            font-size: 10px;
+
+            margin-top: 4px;
+        }
+
+        .result-content {
+            padding: 20px;
+        }
+
+        .split-summary {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 9px;
+
+            margin-bottom: 20px;
+        }
+
+        .summary-box {
+            background: #faf7f2;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 12px;
+
+            padding: 12px;
+        }
+
+        .summary-box span {
+            display: block;
+
+            color: var(--muted);
+
+            font-size: 9px;
+        }
+
+        .summary-box strong {
+            display: block;
+
+            font-size: 14px;
+
+            margin-top: 5px;
+        }
+
+        /* ================= SETTLEMENT ================= */
+
+        .settlement-heading {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 11px;
+        }
+
+        .settlement-heading h3 {
+            font-size: 13px;
+        }
+
+        .settlement-heading span {
+            font-size: 9px;
+
+            color: var(--muted);
+        }
+
+        .settlement-list {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 8px;
+        }
+
+        .settlement {
+            padding: 11px;
+
+            border:
+                1px solid #eee9e2;
+
+            border-radius: 11px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+        }
+
+        .settlement-avatar {
+            width: 31px;
+            height: 31px;
+
+            border-radius: 9px;
+
+            background: var(--orange-light);
+
+            color: var(--orange-dark);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 11px;
+
+            font-weight: 700;
+        }
+
+        .settlement-info {
+            flex: 1;
+
+            min-width: 0;
+        }
+
+        .settlement-info strong {
+            display: block;
+
+            font-size: 10px;
+        }
+
+        .settlement-info span {
+            display: block;
+
+            color: var(--muted);
+
+            font-size: 8px;
+
+            margin-top: 2px;
+        }
+
+        .settlement-amount {
+            font-size: 10px;
+
+            font-weight: 700;
+        }
+
+        .settlement-amount.owe {
+            color: var(--red);
+        }
+
+        .settlement-amount.receive {
+            color: var(--green);
+        }
+
+        /* ================= EMPTY RESULT ================= */
+
+        .empty-result {
+            text-align: center;
+
+            padding: 45px 20px;
+        }
+
+        .empty-result-icon {
+            width: 60px;
+            height: 60px;
+
+            margin: 0 auto 13px;
+
+            background: var(--orange-light);
+
+            border-radius: 19px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 27px;
+        }
+
+        .empty-result h3 {
+            font-size: 15px;
+        }
+
+        .empty-result p {
+            color: var(--muted);
+
+            font-size: 11px;
+
+            line-height: 1.6;
+
+            margin-top: 6px;
+        }
+
+        /* ================= HISTORY ================= */
+
+        .history-card {
+            margin-top: 22px;
+        }
+
+        .history-list {
+            padding: 18px 22px;
+        }
+
+        .history-item {
+            display: grid;
+
+            grid-template-columns:
+                42px
+                minmax(0,1fr)
+                auto
+                auto;
+
+            align-items: center;
+
+            gap: 11px;
+
+            padding: 13px 0;
+
+            border-bottom:
+                1px solid #f0ece6;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-icon {
+            width: 38px;
+            height: 38px;
+
+            border-radius: 11px;
+
+            background: var(--purple-light);
+
+            color: var(--purple);
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 16px;
+        }
+
+        .history-info {
+            min-width: 0;
+        }
+
+        .history-info strong {
+            display: block;
+
+            font-size: 11px;
+
+            white-space: nowrap;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+        }
+
+        .history-info span {
+            display: block;
+
+            color: var(--muted);
+
+            font-size: 9px;
+
+            margin-top: 3px;
+        }
+
+        .history-total {
+            font-size: 11px;
+
+            font-weight: 700;
+        }
+
+        .history-people {
+            color: var(--muted);
+
+            font-size: 9px;
+        }
+
+        .delete-history {
+            width: 28px;
+            height: 28px;
+
+            border:
+                1px solid #f0d0d0;
+
+            background: var(--red-light);
+
+            color: var(--red);
+
+            border-radius: 8px;
+        }
+
+        .empty-history {
+            padding: 35px 10px;
+
+            text-align: center;
+
+            color: var(--muted);
+
+            font-size: 11px;
+        }
+
+        /* ================= TOAST ================= */
+
+        .toast-container {
+            position: fixed;
+
+            top: 22px;
+            right: 22px;
+
+            z-index: 3000;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 8px;
+        }
+
+        .toast {
+            min-width: 270px;
+
+            background: #2d2822;
+
+            color: white;
+
+            padding: 13px 16px;
+
+            border-radius: 12px;
+
+            font-size: 11px;
+
+            box-shadow:
+                0 15px 35px
+                rgba(0,0,0,0.15);
+
+            animation: toastIn 0.3s ease;
+        }
+
+        .toast.success {
+            border-left:
+                4px solid #61b687;
+        }
+
+        .toast.error {
+            border-left:
+                4px solid #e06767;
+        }
+
+        /* ================= ANIMATION ================= */
+
+        @keyframes rowIn {
+
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        }
+
+        @keyframes toastIn {
+
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 1100px) {
+
+            .page-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .result-card {
+                max-width: none;
+            }
+
+        }
+
+        @media (max-width: 800px) {
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: 0.3s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+
+                padding:
+                    24px 18px 40px;
+            }
+
+            .menu-btn {
+                display: block;
+            }
+
+            .mobile-overlay {
+                display: none;
+
+                position: fixed;
+
+                inset: 0;
+
+                background:
+                    rgba(0,0,0,0.35);
+
+                z-index: 900;
+            }
+
+            .mobile-overlay.show {
+                display: block;
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .field.full {
+                grid-column: auto;
+            }
+
+            .person-row {
+                grid-template-columns:
+                    minmax(0,1fr)
+                    95px
+                    36px;
+            }
+
+            .history-item {
+                grid-template-columns:
+                    38px
+                    minmax(0,1fr)
+                    auto;
+            }
+
+            .history-people {
+                display: none;
+            }
+
+        }
+
+        @media (max-width: 430px) {
+
+            .main {
+                padding:
+                    20px 13px 35px;
+            }
+
+            .card-body,
+            .result-content {
+                padding: 17px;
+            }
+
+            .person-row {
+                grid-template-columns:
+                    minmax(0,1fr)
+                    38px;
+            }
+
+            .person-amount {
+                display: none !important;
+            }
+
+            .custom-mode .person-row {
+                grid-template-columns:
+                    minmax(0,1fr)
+                    80px
+                    35px;
+            }
+
+            .custom-mode .person-amount {
+                display: block !important;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .form-actions button {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- MOBILE OVERLAY -->
+    <div
+        class="mobile-overlay"
+        id="mobileOverlay"
+        onclick="closeSidebar()"
+    ></div>
+
+
+    <!-- SIDEBAR -->
+    <aside
+        class="sidebar"
+        id="sidebar"
+    >
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                ₹
+            </div>
+
+            <div class="logo-text">
+                Expense Manager
+            </div>
+
+        </div>
+
+
+        <div class="nav-title">
+            Main Menu
+        </div>
+
+
+        <nav class="nav">
+
+            <a
+                href="dashboard.html"
+                class="nav-link"
+            >
+                <span class="nav-icon">⌂</span>
+                Dashboard
+            </a>
+
+            <a
+                href="transactions.html"
+                class="nav-link"
+            >
+                <span class="nav-icon">⇄</span>
+                Transactions
+            </a>
+
+            <a
+                href="income.html"
+                class="nav-link"
+            >
+                <span class="nav-icon">↗</span>
+                Add Income
+            </a>
+
+            <a
+                href="expenses.html"
+                class="nav-link"
+            >
+                <span class="nav-icon">↘</span>
+                Add Expense
+            </a>
+
+            <a
+                href="budget.html"
+                class="nav-link"
+            >
+                <span class="nav-icon">◫</span>
+                Budget
+            </a>
+
+            <a
+                href="analytics.html"
+                class="nav-link"
+            >
+                <span class="nav-icon">◒</span>
+                Analytics
+            </a>
+
+            <a
+                href="goals.html"
+                class="nav-link"
+            >
+                <span class="nav-icon">◎</span>
+                Savings Goals
+            </a>
+
+            <a
+                href="calendar.html"
+                class="nav-link"
+            >
+                <span class="nav-icon">▣</span>
+                Calendar
+            </a>
+
+            <a
+                href="split-expense.html"
+                class="nav-link active"
+            >
+                <span class="nav-icon">⇆</span>
+                Split Expense
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="user-mini">
+
+                <div
+                    class="avatar"
+                    id="userAvatar"
+                >
+                    U
+                </div>
+
+                <div class="user-info">
+
+                    <strong id="sidebarUserName">
+                        User
+                    </strong>
+
+                    <span id="sidebarUserEmail">
+                        user@email.com
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <button
+                class="logout-btn"
+                onclick="logout()"
+            >
+                ↪ &nbsp; Logout
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <div class="topbar">
+
+            <div class="heading-wrapper">
+
+                <button
+                    class="menu-btn"
+                    onclick="openSidebar()"
+                >
+                    ☰
+                </button>
+
+                <div class="page-heading">
+
+                    <h1>Split Expense</h1>
+
+                    <p>
+                        Split shared expenses fairly and track settlements.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="page-grid">
+
+            <!-- ================= CREATE SPLIT ================= -->
+
+            <section class="card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>Create Split Expense</h2>
+
+                        <p>
+                            Add people and calculate everyone's share.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <form id="splitForm">
+
+                        <div class="form-grid">
+
+                            <div class="field full">
+
+                                <label>
+                                    Expense Title
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="expenseTitle"
+                                    placeholder="Eg. Dinner at restaurant"
+                                    maxlength="70"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="field">
+
+                                <label>
+                                    Total Amount
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="totalAmount"
+                                    placeholder="₹ 2,000"
+                                    min="1"
+                                    step="0.01"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="field">
+
+                                <label>
+                                    Date
+                                </label>
+
+                                <input
+                                    type="date"
+                                    id="expenseDate"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="field full">
+
+                                <label>
+                                    Paid By
+                                </label>
+
+                                <select
+                                    id="paidBy"
+                                    required
+                                >
+                                    <option value="">
+                                        Select person
+                                    </option>
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- SPLIT MODE -->
+
+                        <div class="split-mode">
+
+                            <div class="mode-heading">
+
+                                <strong>
+                                    Split Method
+                                </strong>
+
+                                <span>
+                                    Choose how the bill is shared
+                                </span>
+
+                            </div>
+
+
+                            <div class="mode-buttons">
+
+                                <button
+                                    type="button"
+                                    class="mode-btn active"
+                                    id="equalModeBtn"
+                                    onclick="setSplitMode('equal')"
+                                >
+                                    ⚖ Equal Split
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="mode-btn"
+                                    id="customModeBtn"
+                                    onclick="setSplitMode('custom')"
+                                >
+                                    ✎ Custom Split
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PEOPLE -->
+
+                        <div class="people-section">
+
+                            <div class="people-heading">
+
+                                <h3>
+                                    People
+                                </h3>
+
+                                <span id="peopleCount">
+                                    2 people
+                                </span>
+
+                            </div>
+
+
+                            <div
+                                id="peopleContainer"
+                            ></div>
+
+
+                            <button
+                                type="button"
+                                class="add-person-btn"
+                                onclick="addPerson()"
+                            >
+                                + Add Person
+                            </button>
+
+                        </div>
+
+
+                        <!-- ACTIONS -->
+
+                        <div class="form-actions">
+
+                            <button
+                                type="submit"
+                                class="primary-btn"
+                            >
+                                Calculate Split
+                            </button>
+
+                            <button
+                                type="button"
+                                class="secondary-btn"
+                                onclick="resetForm()"
+                            >
+                                Reset
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </section>
+
+
+            <!-- ================= RESULT ================= -->
+
+            <section
+                class="card result-card"
+                id="resultCard"
+            >
+
+                <div class="empty-result">
+
+                    <div class="empty-result-icon">
+                        ⇆
+                    </div>
+
+                    <h3>
+                        Split Summary
+                    </h3>
+
+                    <p>
+                        Enter the expense details and people,
+                        then calculate the split.
+                    </p>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- ================= HISTORY ================= -->
+
+        <section
+            class="card history-card"
+        >
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Recent Split Expenses
+                    </h2>
+
+                    <p>
+                        Previously calculated shared expenses.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="history-list"
+                id="historyList"
+            ></div>
+
+        </section>
+
+    </main>
+
+
+    <!-- TOAST -->
+    <div
+        class="toast-container"
+        id="toastContainer"
+    ></div>
+
+
+    <script>
+
+        /* ================= AUTH ================= */
+
+        const currentUser =
+            JSON.parse(
+                localStorage.getItem(
+                    "currentUser"
+                )
+            );
+
+
+        if (!currentUser) {
+
+            window.location.href =
+                "login.html";
+
+        }
+
+
+        /* ================= STATE ================= */
+
+        let splitMode = "equal";
+
+        let people = [
+            {
+                id: Date.now(),
+                name: "",
+                amount: 0
+            },
+            {
+                id: Date.now() + 1,
+                name: "",
+                amount: 0
+            }
+        ];
+
+
+        /* ================= HELPERS ================= */
+
+        function getStorage(
+            key,
+            fallback = []
+        ) {
+
+            try {
+
+                const data =
+                    JSON.parse(
+                        localStorage.getItem(
+                            key
+                        )
+                    );
+
+                return data ?? fallback;
+
+            } catch {
+
+                return fallback;
+
+            }
+
+        }
+
+
+        function saveStorage(
+            key,
+            data
+        ) {
+
+            localStorage.setItem(
+                key,
+                JSON.stringify(data)
+            );
+
+        }
+
+
+        function money(value) {
+
+            return new Intl.NumberFormat(
+                "en-IN",
+                {
+                    style: "currency",
+                    currency: "INR",
+                    maximumFractionDigits: 2
+                }
+            ).format(
+                Number(value) || 0
+            );
+
+        }
+
+
+        function escapeHTML(value) {
+
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+
+        }
+
+
+        function userId() {
+
+            return String(
+                currentUser?.id ??
+                currentUser?.email ??
+                ""
+            );
+
+        }
+
+
+        /* ================= USER ================= */
+
+        function setupUser() {
+
+            const name =
+                currentUser?.name ||
+                currentUser?.fullName ||
+                "User";
+
+            const email =
+                currentUser?.email ||
+                "user@email.com";
+
+
+            document.getElementById(
+                "sidebarUserName"
+            ).textContent = name;
+
+            document.getElementById(
+                "sidebarUserEmail"
+            ).textContent = email;
+
+            document.getElementById(
+                "userAvatar"
+            ).textContent =
+                name
+                    .charAt(0)
+                    .toUpperCase();
+
+        }
+
+
+        /* ================= DATE ================= */
+
+        function setDefaultDate() {
+
+            const today =
+                new Date();
+
+            const formatted =
+                [
+                    today.getFullYear(),
+
+                    String(
+                        today.getMonth() + 1
+                    ).padStart(2, "0"),
+
+                    String(
+                        today.getDate()
+                    ).padStart(2, "0")
+
+                ].join("-");
+
+
+            document.getElementById(
+                "expenseDate"
+            ).value =
+                formatted;
+
+        }
+
+
+        /* ================= PEOPLE ================= */
+
+        function renderPeople() {
+
+            const container =
+                document.getElementById(
+                    "peopleContainer"
+                );
+
+
+            container.innerHTML =
+                people
+                    .map(
+                        (person, index) => `
+
+                            <div class="person-row">
+
+                                <input
+                                    type="text"
+                                    class="person-name"
+                                    data-id="${person.id}"
+                                    value="${escapeHTML(
+                                        person.name
+                                    )}"
+                                    placeholder="Person ${index + 1}"
+                                    maxlength="40"
+                                    oninput="updatePersonName(
+                                        ${person.id},
+                                        this.value
+                                    )"
+                                >
+
+
+                                <input
+                                    type="number"
+                                    class="person-amount"
+                                    data-id="${person.id}"
+                                    value="${
+                                        person.amount || ""
+                                    }"
+                                    placeholder="Amount"
+                                    min="0"
+                                    step="0.01"
+                                    oninput="updatePersonAmount(
+                                        ${person.id},
+                                        this.value
+                                    )"
+                                >
+
+
+                                <button
+                                    type="button"
+                                    class="remove-person"
+                                    onclick="removePerson(
+                                        ${person.id}
+                                    )"
+                                    ${
+                                        people.length <= 2
+                                            ? "disabled"
+                                            : ""
+                                    }
+                                >
+                                    ×
+                                </button>
+
+                            </div>
+
+                        `
+                    )
+                    .join("");
+
+
+            document.getElementById(
+                "peopleCount"
+            ).textContent =
+                `${people.length} people`;
+
+
+            updatePaidByDropdown();
+
+        }
+
+
+        function addPerson() {
+
+            people.push({
+
+                id:
+                    Date.now() +
+                    Math.random(),
+
+                name: "",
+
+                amount: 0
+
+            });
+
+
+            renderPeople();
+
+        }
+
+
+        function removePerson(id) {
+
+            if (people.length <= 2) {
+
+                showToast(
+                    "At least 2 people are required.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            people =
+                people.filter(
+                    person =>
+                        person.id !== id
+                );
+
+
+            renderPeople();
+
+        }
+
+
+        function updatePersonName(
+            id,
+            value
+        ) {
+
+            const person =
+                people.find(
+                    item =>
+                        item.id === id
+                );
+
+            if (person) {
+
+                person.name =
+                    value;
+
+            }
+
+
+            updatePaidByDropdown();
+
+        }
+
+
+        function updatePersonAmount(
+            id,
+            value
+        ) {
+
+            const person =
+                people.find(
+                    item =>
+                        item.id === id
+                );
+
+            if (person) {
+
+                person.amount =
+                    Number(value) || 0;
+
+            }
+
+        }
+
+
+        /* ================= PAID BY ================= */
+
+        function updatePaidByDropdown() {
+
+            const select =
+                document.getElementById(
+                    "paidBy"
+                );
+
+
+            const current =
+                select.value;
+
+
+            select.innerHTML = `
+
+                <option value="">
+                    Select person
+                </option>
+
+            `;
+
+
+            people.forEach(
+                (person, index) => {
+
+                    const name =
+                        person.name.trim() ||
+                        `Person ${index + 1}`;
+
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+                    option.value =
+                        String(
+                            person.id
+                        );
+
+                    option.textContent =
+                        name;
+
+
+                    select.appendChild(
+                        option
+                    );
+
+                }
+            );
+
+
+            if (
+                people.some(
+                    person =>
+                        String(person.id) ===
+                        current
+                )
+            ) {
+
+                select.value =
+                    current;
+
+            }
+
+        }
+
+
+        /* ================= SPLIT MODE ================= */
+
+        function setSplitMode(mode) {
+
+            splitMode =
+                mode;
+
+
+            document
+                .getElementById(
+                    "equalModeBtn"
+                )
+                .classList.toggle(
+                    "active",
+                    mode === "equal"
+                );
+
+
+            document
+                .getElementById(
+                    "customModeBtn"
+                )
+                .classList.toggle(
+                    "active",
+                    mode === "custom"
+                );
+
+
+            const form =
+                document.getElementById(
+                    "splitForm"
+                );
+
+
+            if (mode === "custom") {
+
+                form.classList.add(
+                    "custom-mode"
+                );
+
+            } else {
+
+                form.classList.remove(
+                    "custom-mode"
+                );
+
+            }
+
+
+            renderPeople();
+
+        }
+
+
+        /* ================= VALIDATION ================= */
+
+        function validateForm() {
+
+            const title =
+                document.getElementById(
+                    "expenseTitle"
+                ).value.trim();
+
+            const total =
+                Number(
+                    document.getElementById(
+                        "totalAmount"
+                    ).value
+                );
+
+            const date =
+                document.getElementById(
+                    "expenseDate"
+                ).value;
+
+            const paidBy =
+                document.getElementById(
+                    "paidBy"
+                ).value;
+
+
+            if (!title) {
+
+                showToast(
+                    "Enter an expense title.",
+                    "error"
+                );
+
+                return false;
+
+            }
+
+
+            if (
+                !total ||
+                total <= 0
+            ) {
+
+                showToast(
+                    "Enter a valid total amount.",
+                    "error"
+                );
+
+                return false;
+
+            }
+
+
+            if (!date) {
+
+                showToast(
+                    "Select the expense date.",
+                    "error"
+                );
+
+                return false;
+
+            }
+
+
+            if (!paidBy) {
+
+                showToast(
+                    "Select who paid the bill.",
+                    "error"
+                );
+
+                return false;
+
+            }
+
+
+            const validPeople =
+                people.filter(
+                    person =>
+                        person.name.trim()
+                );
+
+
+            if (
+                validPeople.length < 2
+            ) {
+
+                showToast(
+                    "Add names for at least two people.",
+                    "error"
+                );
+
+                return false;
+
+            }
+
+
+            if (
+                splitMode ===
+                "custom"
+            ) {
+
+                const customTotal =
+                    validPeople.reduce(
+                        (
+                            sum,
+                            person
+                        ) =>
+                            sum +
+                            Number(
+                                person.amount
+                            ),
+                        0
+                    );
+
+
+                if (
+                    Math.abs(
+                        customTotal -
+                        total
+                    ) > 0.01
+                ) {
+
+                    showToast(
+                        `Custom amounts must total ${money(total)}. Current total: ${money(customTotal)}.`,
+                        "error"
+                    );
+
+                    return false;
+
+                }
+
+            }
+
+
+            return true;
+
+        }
+
+
+        /* ================= CALCULATE ================= */
+
+        document.getElementById(
+            "splitForm"
+        ).addEventListener(
+            "submit",
+            function(event) {
+
+                event.preventDefault();
+
+
+                if (
+                    !validateForm()
+                ) {
+
+                    return;
+
+                }
+
+
+                calculateSplit();
+
+            }
+        );
+
+
+        function calculateSplit() {
+
+            const title =
+                document.getElementById(
+                    "expenseTitle"
+                ).value.trim();
+
+            const total =
+                Number(
+                    document.getElementById(
+                        "totalAmount"
+                    ).value
+                );
+
+            const date =
+                document.getElementById(
+                    "expenseDate"
+                ).value;
+
+            const paidById =
+                document.getElementById(
+                    "paidBy"
+                ).value;
+
+
+            const validPeople =
+                people
+                    .filter(
+                        person =>
+                            person.name.trim()
+                    )
+                    .map(
+                        person => ({
+                            ...person,
+                            name:
+                                person.name.trim()
+                        })
+                    );
+
+
+            let shares;
+
+
+            if (
+                splitMode ===
+                "equal"
+            ) {
+
+                const equal =
+                    total /
+                    validPeople.length;
+
+
+                shares =
+                    validPeople.map(
+                        person => ({
+
+                            ...person,
+
+                            share:
+                                equal
+
+                        })
+                    );
+
+            } else {
+
+                shares =
+                    validPeople.map(
+                        person => ({
+
+                            ...person,
+
+                            share:
+                                Number(
+                                    person.amount
+                                )
+
+                        })
+                    );
+
+            }
+
+
+            const payer =
+                shares.find(
+                    person =>
+                        String(person.id) ===
+                        String(paidById)
+                );
+
+
+            if (!payer) {
+
+                showToast(
+                    "Invalid payer selected.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            /*
+                Net calculation:
+
+                Positive =
+                person should receive money.
+
+                Negative =
+                person needs to pay money.
+            */
+
+            const balances =
+                shares.map(
+                    person => ({
+
+                        ...person,
+
+                        balance:
+                            (
+                                String(
+                                    person.id
+                                ) ===
+                                String(
+                                    payer.id
+                                )
+                            )
+                                ? total -
+                                  person.share
+
+                                : -person.share
+
+                    })
+                );
+
+
+            renderResult(
+                title,
+                total,
+                date,
+                shares,
+                balances,
+                payer
+            );
+
+
+            saveSplitHistory(
+                title,
+                total,
+                date,
+                shares,
+                balances,
+                payer
+            );
+
+
+            showToast(
+                "Split calculated successfully.",
+                "success"
+            );
+
+        }
+
+
+        /* ================= RESULT ================= */
+
+        function renderResult(
+            title,
+            total,
+            date,
+            shares,
+            balances,
+            payer
+        ) {
+
+            const resultCard =
+                document.getElementById(
+                    "resultCard"
+                );
+
+
+            const average =
+                total /
+                shares.length;
+
+
+            const settlementHTML =
+                balances
+                    .map(
+                        person => {
+
+                            if (
+                                Math.abs(
+                                    person.balance
+                                ) < 0.01
+                            ) {
+
+                                return `
+
+                                    <div class="settlement">
+
+                                        <div class="settlement-avatar">
+                                            ✓
+                                        </div>
+
+                                        <div class="settlement-info">
+
+                                            <strong>
+                                                ${escapeHTML(
+                                                    person.name
+                                                )}
+                                            </strong>
+
+                                            <span>
+                                                Settled / paid own share
+                                            </span>
+
+                                        </div>
+
+                                        <div
+                                            class="
+                                                settlement-amount
+                                                receive
+                                            "
+                                        >
+                                            ₹0
+                                        </div>
+
+                                    </div>
+
+                                `;
+
+                            }
+
+
+                            const owes =
+                                person.balance <
+                                0;
+
+
+                            const amount =
+                                Math.abs(
+                                    person.balance
+                                );
+
+
+                            return `
+
+                                <div class="settlement">
+
+                                    <div class="settlement-avatar">
+                                        ${
+                                            owes
+                                                ? "↓"
+                                                : "↑"
+                                        }
+                                    </div>
+
+                                    <div class="settlement-info">
+
+                                        <strong>
+                                            ${escapeHTML(
+                                                person.name
+                                            )}
+                                        </strong>
+
+                                        <span>
+                                            ${
+                                                owes
+                                                    ? `Needs to pay ${escapeHTML(
+                                                        payer.name
+                                                    )}`
+                                                    : "Should receive"
+                                            }
+                                        </span>
+
+                                    </div>
+
+                                    <div
+                                        class="
+                                            settlement-amount
+                                            ${
+                                                owes
+                                                    ? "owe"
+                                                    : "receive"
+                                            }
+                                        "
+                                    >
+                                        ${
+                                            owes
+                                                ? "-"
+                                                : "+"
+                                        }
+                                        ${money(
+                                            amount
+                                        )}
+                                    </div>
+
+                                </div>
+
+                            `;
+
+                        }
+                    )
+                    .join("");
+
+
+            const sharesHTML =
+                shares
+                    .map(
+                        person => `
+
+                            <div class="settlement">
+
+                                <div
+                                    class="settlement-avatar"
+                                    style="
+                                        background:
+                                            ${
+                                                person.id ===
+                                                payer.id
+                                                    ? '#e9f6ef'
+                                                    : '#fff0e5'
+                                            };
+                                        color:
+                                            ${
+                                                person.id ===
+                                                payer.id
+                                                    ? '#3d8b68'
+                                                    : '#c85b1d'
+                                            };
+                                    "
+                                >
+                                    ${
+                                        person.name
+                                            .charAt(0)
+                                            .toUpperCase()
+                                    }
+                                </div>
+
+                                <div class="settlement-info">
+
+                                    <strong>
+                                        ${escapeHTML(
+                                            person.name
+                                        )}
+                                    </strong>
+
+                                    <span>
+                                        ${
+                                            person.id ===
+                                            payer.id
+                                                ? "Paid the full bill"
+                                                : "Share"
+                                        }
+                                    </span>
+
+                                </div>
+
+                                <div
+                                    class="
+                                        settlement-amount
+                                    "
+                                >
+                                    ${money(
+                                        person.share
+                                    )}
+                                </div>
+
+                            </div>
+
+                        `
+                    )
+                    .join("");
+
+
+            resultCard.innerHTML = `
+
+                <div class="result-hero">
+
+                    <div class="result-label">
+                        Split Summary
+                    </div>
+
+                    <div class="result-total">
+                        ${money(total)}
+                    </div>
+
+                    <div class="result-sub">
+                        ${escapeHTML(title)}
+                        • ${escapeHTML(date)}
+                    </div>
+
+                </div>
+
+
+                <div class="result-content">
+
+                    <div class="split-summary">
+
+                        <div class="summary-box">
+
+                            <span>
+                                People
+                            </span>
+
+                            <strong>
+                                ${shares.length}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="summary-box">
+
+                            <span>
+                                Average Share
+                            </span>
+
+                            <strong>
+                                ${money(average)}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="summary-box">
+
+                            <span>
+                                Paid By
+                            </span>
+
+                            <strong>
+                                ${escapeHTML(
+                                    payer.name
+                                )}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="summary-box">
+
+                            <span>
+                                Split Type
+                            </span>
+
+                            <strong>
+                                ${
+                                    splitMode ===
+                                    "equal"
+                                        ? "Equal"
+                                        : "Custom"
+                                }
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="settlement-heading">
+
+                        <h3>
+                            Individual Shares
+                        </h3>
+
+                        <span>
+                            Who owes what
+                        </span>
+
+                    </div>
+
+
+                    <div class="settlement-list">
+
+                        ${sharesHTML}
+
+                    </div>
+
+
+                    <div
+                        style="
+                            height:1px;
+                            background:#ebe4d9;
+                            margin:20px 0;
+                        "
+                    ></div>
+
+
+                    <div class="settlement-heading">
+
+                        <h3>
+                            Settlement
+                        </h3>
+
+                        <span>
+                            Final balance
+                        </span>
+
+                    </div>
+
+
+                    <div class="settlement-list">
+
+                        ${settlementHTML}
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+
+        /* ================= HISTORY ================= */
+
+        function saveSplitHistory(
+            title,
+            total,
+            date,
+            shares,
+            balances,
+            payer
+        ) {
+
+            const history =
+                getStorage(
+                    "splitExpenses",
+                    []
+                );
+
+
+            const item = {
+
+                id:
+                    Date.now()
+                    .toString(),
+
+                userId:
+                    userId(),
+
+                title,
+
+                total,
+
+                date,
+
+                splitMode,
+
+                payer:
+                    payer.name,
+
+                people:
+                    shares.map(
+                        person => ({
+
+                            name:
+                                person.name,
+
+                            share:
+                                Number(
+                                    person.share
+                                )
+
+                        })
+                    ),
+
+                createdAt:
+                    new Date()
+                        .toISOString()
+
+            };
+
+
+            history.unshift(item);
+
+
+            saveStorage(
+                "splitExpenses",
+                history
+            );
+
+
+            renderHistory();
+
+        }
+
+
+        function renderHistory() {
+
+            const history =
+                getStorage(
+                    "splitExpenses",
+                    []
+                )
+                .filter(
+                    item =>
+                        String(
+                            item.userId
+                        ) === userId()
+                )
+                .sort(
+                    (a, b) =>
+                        new Date(
+                            b.createdAt ||
+                            b.date
+                        ) -
+                        new Date(
+                            a.createdAt ||
+                            a.date
+                        )
+                );
+
+
+            const container =
+                document.getElementById(
+                    "historyList"
+                );
+
+
+            if (!history.length) {
+
+                container.innerHTML = `
+
+                    <div class="empty-history">
+
+                        No split expenses saved yet.
+
+                        <br>
+
+                        Your calculated splits will appear here.
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+            container.innerHTML =
+                history
+                    .slice(0, 8)
+                    .map(
+                        item => `
+
+                            <div class="history-item">
+
+                                <div class="history-icon">
+                                    ⇆
+                                </div>
+
+
+                                <div class="history-info">
+
+                                    <strong>
+                                        ${escapeHTML(
+                                            item.title
+                                        )}
+                                    </strong>
+
+                                    <span>
+                                        ${escapeHTML(
+                                            item.date
+                                        )}
+                                        • Paid by
+                                        ${escapeHTML(
+                                            item.payer
+                                        )}
+                                    </span>
+
+                                </div>
+
+
+                                <div
+                                    class="history-total"
+                                >
+                                    ${money(
+                                        item.total
+                                    )}
+                                </div>
+
+
+                                <div
+                                    class="history-people"
+                                >
+                                    ${
+                                        item.people?.length ||
+                                        0
+                                    }
+                                    people
+                                </div>
+
+
+                                <button
+                                    class="delete-history"
+                                    onclick="deleteHistory(
+                                        '${item.id}'
+                                    )"
+                                    title="Delete"
+                                >
+                                    ×
+                                </button>
+
+                            </div>
+
+                        `
+                    )
+                    .join("");
+
+        }
+
+
+        function deleteHistory(id) {
+
+            const confirmed =
+                confirm(
+                    "Delete this split expense from history?"
+                );
+
+
+            if (!confirmed) return;
+
+
+            const history =
+                getStorage(
+                    "splitExpenses",
+                    []
+                );
+
+
+            const updated =
+                history.filter(
+                    item =>
+                        !(
+                            String(
+                                item.id
+                            ) ===
+                            String(id) &&
+                            String(
+                                item.userId
+                            ) === userId()
+                        )
+                );
+
+
+            saveStorage(
+                "splitExpenses",
+                updated
+            );
+
+
+            renderHistory();
+
+
+            showToast(
+                "Split expense removed.",
+                "success"
+            );
+
+        }
+
+
+        /* ================= RESET ================= */
+
+        function resetForm() {
+
+            document.getElementById(
+                "splitForm"
+            ).reset();
+
+
+            people = [
+
+                {
+                    id: Date.now(),
+                    name: "",
+                    amount: 0
+                },
+
+                {
+                    id:
+                        Date.now() + 1,
+                    name: "",
+                    amount: 0
+                }
+
+            ];
+
+
+            setSplitMode(
+                "equal"
+            );
+
+
+            setDefaultDate();
+
+
+            document.getElementById(
+                "resultCard"
+            ).innerHTML = `
+
+                <div class="empty-result">
+
+                    <div class="empty-result-icon">
+                        ⇆
+                    </div>
+
+                    <h3>
+                        Split Summary
+                    </h3>
+
+                    <p>
+                        Enter the expense details and people,
+                        then calculate the split.
+                    </p>
+
+                </div>
+
+            `;
+
+        }
+
+
+        /* ================= SIDEBAR ================= */
+
+        function openSidebar() {
+
+            document.getElementById(
+                "sidebar"
+            ).classList.add("open");
+
+            document.getElementById(
+                "mobileOverlay"
+            ).classList.add("show");
+
+        }
+
+
+        function closeSidebar() {
+
+            document.getElementById(
+                "sidebar"
+            ).classList.remove("open");
+
+            document.getElementById(
+                "mobileOverlay"
+            ).classList.remove("show");
+
+        }
+
+
+        /* ================= TOAST ================= */
+
+        function showToast(
+            message,
+            type = "success"
+        ) {
+
+            const container =
+                document.getElementById(
+                    "toastContainer"
+                );
+
+
+            const toast =
+                document.createElement(
+                    "div"
+                );
+
+
+            toast.className =
+                `toast ${type}`;
+
+
+            toast.textContent =
+                message;
+
+
+            container.appendChild(
+                toast
+            );
+
+
+            setTimeout(
+                () => {
+
+                    toast.style.opacity =
+                        "0";
+
+                    toast.style.transform =
+                        "translateX(20px)";
+
+
+                    setTimeout(
+                        () =>
+                            toast.remove(),
+                        250
+                    );
+
+                },
+                2800
+            );
+
+        }
+
+
+        /* ================= LOGOUT ================= */
+
+        function logout() {
+
+            localStorage.removeItem(
+                "currentUser"
+            );
+
+            window.location.href =
+                "login.html";
+
+        }
+
+
+        /* ================= INITIAL LOAD ================= */
+
+        setupUser();
+
+        setDefaultDate();
+
+        renderPeople();
+
+        renderHistory();
+
+    </script>
+
+</body>
+</html>
